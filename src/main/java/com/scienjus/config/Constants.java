@@ -2,6 +2,7 @@ package com.scienjus.config;
 
 /**
  * 常量
+ *
  * @author ScienJus
  * @date 2015/7/31.
  */

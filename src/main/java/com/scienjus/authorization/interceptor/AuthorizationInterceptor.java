@@ -15,9 +15,10 @@ import java.lang.reflect.Method;
 
 /**
  * 自定义拦截器，判断此次请求是否有权限
- * @see com.scienjus.authorization.annotation.Authorization
+ *
  * @author ScienJus
  * @date 2015/7/30.
+ * @see com.scienjus.authorization.annotation.Authorization
  */
 @Component
 public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
@@ -25,8 +26,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private TokenManager manager;
 
-    public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //如果不是映射到方法直接通过
         if (!(handler instanceof HandlerMethod)) {
             return true;

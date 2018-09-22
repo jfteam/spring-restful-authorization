@@ -4,6 +4,7 @@ import com.scienjus.config.ResultStatus;
 
 /**
  * 自定义返回结果
+ *
  * @author XieEnlong
  * @date 2015/7/14.
  */

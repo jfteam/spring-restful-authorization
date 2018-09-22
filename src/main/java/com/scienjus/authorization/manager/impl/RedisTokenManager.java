@@ -7,26 +7,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 通过Redis存储和验证token的实现类
- * @see com.scienjus.authorization.manager.TokenManager
+ *
  * @author ScienJus
  * @date 2015/7/31.
+ * @see com.scienjus.authorization.manager.TokenManager
  */
 @Component
 public class RedisTokenManager implements TokenManager {
 
-    private RedisTemplate<Long, String> redis;
+    private final RedisTemplate<Long, String> redisTemplate;
 
-    @Autowired
-    public void setRedis(RedisTemplate redis) {
-        this.redis = redis;
-        //泛型设置成Long后必须更改对应的序列化方案
-        redis.setKeySerializer(new JdkSerializationRedisSerializer());
+    /**
+     * 通过构造方法注入
+     *
+     * @param redisTemplate
+     */
+    public RedisTokenManager(RedisTemplate<Long, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+        this.redisTemplate.setKeySerializer(new JdkSerializationRedisSerializer());
     }
 
     public TokenModel createToken(long userId) {
@@ -34,12 +39,12 @@ public class RedisTokenManager implements TokenManager {
         String token = UUID.randomUUID().toString().replace("-", "");
         TokenModel model = new TokenModel(userId, token);
         //存储到redis并设置过期时间
-        redis.boundValueOps(userId).set(token, Constants.TOKEN_EXPIRES_HOUR, TimeUnit.HOURS);
+        redisTemplate.boundValueOps(userId).set(token, Constants.TOKEN_EXPIRES_HOUR, TimeUnit.HOURS);
         return model;
     }
 
     public TokenModel getToken(String authentication) {
-        if (authentication == null || authentication.length() == 0) {
+        if (!StringUtils.hasText(authentication)) {
             return null;
         }
         String[] param = authentication.split("_");
@@ -56,16 +61,16 @@ public class RedisTokenManager implements TokenManager {
         if (model == null) {
             return false;
         }
-        String token = redis.boundValueOps(model.getUserId()).get();
-        if (token == null || !token.equals(model.getToken())) {
-            return false;
+        String token = redisTemplate.boundValueOps(model.getUserId()).get();
+        if (StringUtils.hasText(token) && token.equals(model.getToken())) {
+            //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
+            redisTemplate.boundValueOps(model.getUserId()).expire(Constants.TOKEN_EXPIRES_HOUR, TimeUnit.HOURS);
+            return true;
         }
-        //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
-        redis.boundValueOps(model.getUserId()).expire(Constants.TOKEN_EXPIRES_HOUR, TimeUnit.HOURS);
-        return true;
+        return false;
     }
 
     public void deleteToken(long userId) {
-        redis.delete(userId);
+        redisTemplate.delete(userId);
     }
 }

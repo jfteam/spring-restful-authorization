@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 获取和删除token的请求地址，在Restful设计中其实就对应着登录和退出登录的资源映射
+ *
  * @author ScienJus
  * @date 2015/7/30.
  */
