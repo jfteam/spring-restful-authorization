@@ -16,9 +16,10 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 /**
  * 增加方法注入，将含有CurrentUser注解的方法参数注入当前登录用户
- * @see com.scienjus.authorization.annotation.CurrentUser
+ *
  * @author ScienJus
  * @date 2015/7/31.
+ * @see com.scienjus.authorization.annotation.CurrentUser
  */
 @Component
 public class CurrentUserMethodArgumentResolver implements HandlerMethodArgumentResolver {
@@ -29,11 +30,7 @@ public class CurrentUserMethodArgumentResolver implements HandlerMethodArgumentR
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         //如果参数类型是User并且有CurrentUser注解则支持
-        if (parameter.getParameterType().isAssignableFrom(User.class) &&
-                parameter.hasParameterAnnotation(CurrentUser.class)) {
-            return true;
-        }
-        return false;
+        return parameter.getParameterType().isAssignableFrom(User.class) && parameter.hasParameterAnnotation(CurrentUser.class);
     }
 
     @Override
