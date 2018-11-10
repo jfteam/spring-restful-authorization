@@ -22,16 +22,10 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisTokenManager implements TokenManager {
 
-    private final RedisTemplate<Long, String> redisTemplate;
+    @Autowired
+    private RedisTemplate<Long, String> redisTemplate;
 
-    /**
-     * 通过构造方法注入
-     *
-     * @param redisTemplate
-     */
-    public RedisTokenManager(RedisTemplate<Long, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-        this.redisTemplate.setKeySerializer(new JdkSerializationRedisSerializer());
+    public RedisTokenManager() {
     }
 
     public TokenModel createToken(long userId) {
